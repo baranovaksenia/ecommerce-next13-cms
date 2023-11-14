@@ -15,6 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import axios from "axios";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Store name is required" }),
@@ -22,6 +24,8 @@ const formSchema = z.object({
 
 export const StoreModal = () => {
   const { isOpen, onClose } = useStoreModal();
+
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -31,8 +35,16 @@ export const StoreModal = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // todo: create store
-    console.log(data);
+    try {
+      setLoading(true);
+      // send data to server
+      const response = await axios.post("/api/stores", data);
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +64,11 @@ export const StoreModal = () => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="E-Commerce" {...field} />
+                    <Input
+                      placeholder="E-Commerce"
+                      disabled={loading}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
