@@ -17,6 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import axios from "axios";
+import { useToast } from "../ui/use-toast";
+import { ToastAction } from "../ui/toast";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Store name is required" }),
@@ -26,6 +28,8 @@ export const StoreModal = () => {
   const { isOpen, onClose } = useStoreModal();
 
   const [loading, setLoading] = useState(false);
+
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,8 +43,16 @@ export const StoreModal = () => {
       setLoading(true);
       // send data to server
       const response = await axios.post("/api/stores", data);
+      toast({
+        variant: "success",
+        title: "Store created successfully",
+      });
       console.log(response.data);
     } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong. Try again.",
+      });
       console.log(error);
     } finally {
       setLoading(false);
